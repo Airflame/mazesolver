@@ -1,14 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 project(mazesolver)
 
-set(CMAKE_CXX_STANDARD 14)
+## If you want to link SFML statically
+# set(SFML_STATIC_LIBRARIES TRUE)
 
-set(SOURCE_FILES main.cpp)
-add_executable(mazesolver main.cpp src/Maze.cpp include/Maze.h src/Grid.cpp include/Grid.h src/Tile.cpp include/Tile.h src/Text.cpp include/Text.h include/Scores.h src/Scores.cpp)
+## In most cases better set in the CMake cache
+# set(SFML_DIR "<sfml root prefix>/lib/cmake/SFML")
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake_modules")
-find_package(SFML REQUIRED system window graphics network audio)
-if (SFML_FOUND)
-    include_directories(${SFML_INCLUDE_DIR})
-    target_link_libraries(mazesolver ${SFML_LIBRARIES})
-endif()
+find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
+add_executable(mazesolver main.cpp src/Maze.cpp include/Maze.h src/Grid.cpp include/Grid.h src/Tile.cpp include/Tile.h src/Text.cpp include/Text.h include/Scores.h src/Scores.cpp src/Bonus.cpp include/Bonus.h src/BonusLeft.cpp include/BonusLeft.h src/BonusRight.cpp include/BonusRight.h src/BonusUp.cpp include/BonusUp.h src/BonusDown.cpp include/BonusDown.h src/BonusBomb.cpp include/BonusBomb.h include/Bonuses.h)
+target_link_libraries(mazesolver sfml-graphics sfml-window sfml-system)

@@ -7,7 +7,7 @@ Grid::Grid()
 
 void Grid::setSize(int n)
 {
-    float d = 1000.0f / (float) n;
+    float d = 600.0f / (float) n;
     tiles = std::vector<std::vector<Tile>>(n, std::vector<Tile>(n, Tile(d)));
     for (int i = 0; i < n; i++)
     {

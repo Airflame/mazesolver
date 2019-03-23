@@ -2,10 +2,10 @@
 
 Text::Text()
 {
-    fontsize = 50;
+    fontsize = 30;
     font.loadFromFile("res/Orbitron-Regular.ttf");
     setFont(font);
     setFillColor(sf::Color::White);
-    setCharacterSize(fontsize);
+    setCharacterSize(static_cast<unsigned int>(fontsize));
     setOrigin(0,0);
 }

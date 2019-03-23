@@ -1,6 +1,7 @@
 #include "include/Maze.h"
 #include "include/Grid.h"
 #include "include/Text.h"
+#include "include/Bonus.h"
 #include <set>
 
 
@@ -19,7 +20,7 @@ void console(Instruction *instruction)
     std::cout << "*     Wojciech Radzimowski     *" << std::endl;
     std::cout << "*   Politechnika Koszalinska   *" << std::endl;
     std::cout << "********************************" << std::endl;
-    std::set<std::string> warg = {"load", "save", "play", "create"};
+    std::set<std::string> warg = {"load", "save", "play", "play+", "create"};
     while (instruction->command != "quit")
     {
         while (instruction->hold)
@@ -41,9 +42,9 @@ int main()
     Grid grid;
     sf::Clock clock;
     float dt = 0;
-    sf::RenderWindow window(sf::VideoMode(1000, 1000), "Maze solver");
+    sf::RenderWindow window(sf::VideoMode(600, 600), "Maze solver");
     window.setFramerateLimit(30);
-    Instruction *instruction = new Instruction;
+    auto *instruction = new Instruction;
     sf::Thread cthread(&console, instruction);
     cthread.launch();
     Text timer, scores;
@@ -54,7 +55,7 @@ int main()
         std::string stime = std::to_string(maze.getTime());
         timer.setString(stime.substr(0, stime.size() - 4));
         scores.setString(maze.scoresToString());
-        sf::Event event;
+        sf::Event event{};
         while (window.pollEvent(event))
         {
             if (event.type == sf::Event::Closed)
@@ -66,11 +67,11 @@ int main()
             {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
                     maze.move(1, 0);
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
                     maze.move(-1, 0);
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
                     maze.move(0, 1);
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+                else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
                     maze.move(0, -1);
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
                 {
@@ -84,7 +85,11 @@ int main()
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Tab))
             window.draw(scores);
         else
+        {
             grid.draw(&window);
+            for (Bonus *b : maze.getBonuses())
+                window.draw(*b);
+        }
         dt = clock.restart().asSeconds();
         if (maze.isPlaying())
         {
@@ -137,13 +142,25 @@ int main()
                 {}
                 maze.reset();
                 maze.resetTime();
-                maze.startPlaying(instruction->argument);
+                maze.startPlaying(instruction->argument, false);
+                instruction->hold = true;
+                clock.restart();
+                instruction->argument = "";
+            }
+            else if (instruction->command == "play+")
+            {
+                while (instruction->argument.empty())
+                {}
+                maze.reset();
+                maze.resetTime();
+                maze.startPlaying(instruction->argument, true);
                 instruction->hold = true;
                 clock.restart();
                 instruction->argument = "";
             }
             else if (instruction->command == "quit")
             {
+                delete instruction;
                 return 0;
             }
             if (!instruction->command.empty())

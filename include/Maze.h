@@ -11,12 +11,14 @@
 #include <utility>
 #include <SFML/System.hpp>
 #include "Scores.h"
+#include "Bonuses.h"
 
 
 class Maze
 {
     public:
         Maze();
+        ~Maze();
         void load(std::string);
         void save(std::string);
         void create(int);
@@ -26,7 +28,7 @@ class Maze
         std::vector<std::vector<bool>>& getStatemap();
         std::vector<std::vector<bool>>& getVisitedmap();
         std::string toString();
-        void startPlaying(std::string);
+        void startPlaying(std::string, bool);
         void stopPlaying();
         bool isPlaying();
         void move(int,int);
@@ -34,14 +36,17 @@ class Maze
         void resetTime();
         float getTime();
         std::string scoresToString();
+        std::vector<Bonus*> getBonuses();
 
     private:
         void bfs();
         void drawPath();
         void resetVisitedmap();
         void createRec(int,int);
+        void addBonuses();
         std::map<std::pair<int,int>,std::pair<int,int>> path;
         std::vector<std::vector<bool>> statemap;
+        std::vector<std::vector<bool>> ostatemap;
         std::vector<std::vector<bool>> visitedmap;
         std::string mazename, playername;
         int size, in, out, px, py;
@@ -49,6 +54,7 @@ class Maze
         bool playing = false;
         float time = 0;
         Scores scores;
+        std::vector<Bonus*> bonuses;
 };
 
 #endif

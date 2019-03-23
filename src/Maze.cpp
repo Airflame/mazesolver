@@ -8,6 +8,12 @@ Maze::Maze()
     visitedmap = std::vector<std::vector<bool>>(size, std::vector<bool>(size, false));
 }
 
+Maze::~Maze()
+{
+    for (Bonus *b : bonuses)
+        delete b;
+}
+
 void Maze::load(std::string filename)
 {
     mazename = filename;
@@ -251,13 +257,13 @@ void Maze::bfs()
     std::vector<std::vector<bool>> wstatemap = statemap;
     std::queue<int> qy;
     std::queue<int> qx;
-    wstatemap[0][in] = 1;
+    wstatemap[0][in] = true;
     int x = in;
     int y = 1;
     path[std::make_pair(1, in)] = std::make_pair(0, in);
     while (x != out or y != size - 1)
     {
-        wstatemap[y][x] = 1;
+        wstatemap[y][x] = true;
         if (wstatemap[y + 1][x] == 0)
         {
             qy.push(y + 1);
@@ -339,7 +345,7 @@ std::vector<std::vector<bool>> &Maze::getVisitedmap()
 std::string Maze::toString()
 {
     std::string result;
-    for (auto row : statemap)
+    for (const auto &row : statemap)
     {
         for (auto n : row)
         {
@@ -355,14 +361,57 @@ std::string Maze::toString()
     return result;
 }
 
-void Maze::startPlaying(std::string name)
+void Maze::startPlaying(std::string name, bool add)
 {
     playername = std::move(name);
     reset();
-    playing = true;
     py = 0;
     px = in;
     visitedmap[py][px] = true;
+    ostatemap = statemap;
+    if (add)
+        addBonuses();
+    playing = true;
+}
+
+void Maze::addBonuses()
+{
+    int quantity = 0;
+    for (const auto &row : statemap)
+    {
+        for (bool cell : row)
+            quantity += cell ^ 1;
+    }
+    quantity /= 15;
+    for (int i = 0; i < quantity; i++)
+    {
+        int by = 0;
+        int bx = 0;
+        while (statemap[by][bx] or by < 2)
+        {
+            by = rand() % size;
+            bx = rand() % size;
+        }
+        Bonus *b;
+        switch (rand() % 5)
+        {
+            case 0:
+                b = new BonusLeft(sf::Vector2f(bx, by), 600.f/size);
+                break;
+            case 1:
+                b = new BonusRight(sf::Vector2f(bx, by), 600.f/size);
+                break;
+            case 2:
+                b = new BonusUp(sf::Vector2f(bx, by), 600.f/size);
+                break;
+            case 3:
+                b = new BonusDown(sf::Vector2f(bx, by), 600.f/size);
+                break;
+            default:
+                b = new BonusBomb(sf::Vector2f(bx, by), 600.f/size);
+        }
+        bonuses.push_back(b);
+    }
 }
 
 void Maze::stopPlaying()
@@ -370,6 +419,8 @@ void Maze::stopPlaying()
     scores.insert(playername, time);
     scores.save(mazename);
     playing = false;
+    statemap = ostatemap;
+    bonuses.clear();
     reset();
 }
 
@@ -386,6 +437,16 @@ void Maze::move(int dy, int dx)
     py += dy;
     px += dx;
     visitedmap[py][px] = true;
+    for (int i = 0; i < bonuses.size(); i++)
+    {
+        if (bonuses[i]->getLocation() == sf::Vector2f(px,py))
+        {
+            bonuses[i]->use(statemap);
+            delete bonuses[i];
+            bonuses.erase(bonuses.begin()+i);
+            break;
+        }
+    }
     if (py == size - 1)
         stopPlaying();
 }
@@ -409,4 +470,9 @@ float Maze::getTime()
 std::string Maze::scoresToString()
 {
     return scores.toString();
+}
+
+std::vector<Bonus*> Maze::getBonuses()
+{
+    return bonuses;
 }
