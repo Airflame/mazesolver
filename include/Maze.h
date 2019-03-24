@@ -9,6 +9,7 @@
 #include <queue>
 #include <map>
 #include <utility>
+#include <set>
 #include <SFML/System.hpp>
 #include "Scores.h"
 #include "Bonuses.h"

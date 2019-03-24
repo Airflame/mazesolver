@@ -377,6 +377,7 @@ void Maze::startPlaying(std::string name, bool add)
 void Maze::addBonuses()
 {
     int quantity = 0;
+    std::vector<std::vector<bool>> occupied = statemap;
     for (const auto &row : statemap)
     {
         for (bool cell : row)
@@ -387,11 +388,12 @@ void Maze::addBonuses()
     {
         int by = 0;
         int bx = 0;
-        while (statemap[by][bx] or by < 2)
+        while (occupied[by][bx] or by < 2)
         {
             by = rand() % size;
             bx = rand() % size;
         }
+        occupied[by][bx] = true;
         Bonus *b;
         switch (rand() % 5)
         {
