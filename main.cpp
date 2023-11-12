@@ -18,7 +18,6 @@ void console(Instruction *instruction)
     std::cout << "*         Maze Solver          *" << std::endl;
     std::cout << "*                              *" << std::endl;
     std::cout << "*     Wojciech Radzimowski     *" << std::endl;
-    std::cout << "*   Politechnika Koszalinska   *" << std::endl;
     std::cout << "********************************" << std::endl;
     std::set<std::string> warg = {"load", "save", "play", "play+", "create"};
     while (instruction->command != "quit")
